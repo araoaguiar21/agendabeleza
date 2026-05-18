@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Admin BeautyFlow</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="login-page">
+    <div class="login-box">
+
+      <div class="login-logo">💅</div>
+      <h1 id="loginTitle">BeautyFlow</h1>
+      <p>Painel Administrativo</p>
+
+      <div class="login-error" id="loginError">
+        Usuário ou senha incorretos!
+      </div>
+
+      <form class="login-form" id="loginForm">
+        <div class="form-group">
+          <label for="usuario">Usuário</label>
+          <input type="text" id="usuario" placeholder="admin" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="senha">Senha</label>
+          <input type="password" id="senha" placeholder="••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          🔐 Entrar
+        </button>
+      </form>
+
+      <p style="margin-top:20px; font-size:13px; color:var(--text-muted);">
+        <a href="index.html" style="color:var(--primary);">← Voltar ao site</a>
+      </p>
+
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    /* Preenche título com nome do salão */
+    document.getElementById("loginTitle").textContent = CONFIG.salonName;
+
+    /* Verifica se já está logado */
+    if(sessionStorage.getItem("bf_logado") === "1") {
+      window.location.href = "admin.html";
+    }
+
+    /* Salva senha customizada no localStorage se existir */
+    var senhaCustom = localStorage.getItem("bf_senha");
+    var usuarioCustom = localStorage.getItem("bf_usuario");
+    var senhaFinal   = senhaCustom   || CONFIG.adminPassword;
+    var usuarioFinal = usuarioCustom || CONFIG.adminUser;
+
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      var u = document.getElementById("usuario").value;
+      var s = document.getElementById("senha").value;
+
+      if(u === usuarioFinal && s === senhaFinal) {
+        sessionStorage.setItem("bf_logado", "1");
+        window.location.href = "admin.html";
+      } else {
+        var err = document.getElementById("loginError");
+        err.style.display = "block";
+        err.textContent = "Usuário ou senha incorretos!";
+        setTimeout(function(){ err.style.display = "none"; }, 3000);
+      }
+    });
+  </script>
+
+</body>
+</html>
