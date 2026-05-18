@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">BeautyFlow Studio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-badge">✦ Agendamento Online</div>
+
+    <h1 id="heroTitle">
+      leticia<em>soares</em><br>Studio
+    </h1>
+
+    <p class="hero-sub" id="heroSub">Beleza que transforma ✨</p>
+
+    <div class="hero-btns">
+      <a href="#agendamento" class="btn btn-white">💅 Agendar agora</a>
+      <a id="heroWaBtn" href="#" target="_blank" class="btn btn-outline">WhatsApp</a>
+    </div>
+  </section>
+
+  <!-- ===== SERVIÇOS ===== -->
+  <section class="section" id="servicos">
+    <div class="section-header">
+      <p class="section-label">O que oferecemos</p>
+      <h2 class="section-title">Nossos Serviços</h2>
+      <p class="section-sub">Cuidado e carinho em cada detalhe</p>
+    </div>
+    <div class="servicos-grid" id="servicosGrid">
+      <!-- Preenchido via JS com CONFIG.services -->
+    </div>
+  </section>
+
+  <!-- ===== AGENDAMENTO ===== -->
+  <section class="section booking-section" id="agendamento">
+    <div class="booking-wrapper">
+      <div class="section-header">
+        <p class="section-label">Fácil e rápido</p>
+        <h2 class="section-title">Agendar Horário</h2>
+        <p class="section-sub">Preencha os dados e confirme pelo WhatsApp</p>
+      </div>
+
+      <form id="formAgendamento">
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label for="nome">Seu nome completo</label>
+            <input type="text" id="nome" placeholder="Ex: Maria da Silva" required>
+          </div>
+
+          <div class="form-group form-full">
+            <label for="telefone">WhatsApp (com DDD)</label>
+            <input type="tel" id="telefone" placeholder="(21) 99999-0000" required
+                   maxlength="15" oninput="mascararTelefone(this)">
+          </div>
+
+          <div class="form-group form-full">
+            <label for="servico">Serviço desejado</label>
+            <select id="servico" required>
+              <option value="">Escolha um serviço...</option>
+              <!-- Preenchido via JS -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="data">Data</label>
+            <input type="date" id="data" required>
+          </div>
+
+          <div class="form-group">
+            <label for="horario">Horário</label>
+            <select id="horario" required>
+              <option value="">Selecione a data primeiro</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="avisoHorario" style="display:none; color:var(--danger); font-size:14px; margin-bottom:8px; padding:10px; background:#FFF0F0; border-radius:8px;"></div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          ✅ Confirmar Agendamento
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== RODAPÉ ===== -->
+  <footer>
+    <p><strong id="footerName">BeautyFlow Studio</strong></p>
+    <p style="margin-top:6px;" id="footerAddress"></p>
+    <p style="margin-top:10px; font-size:12px;">
+      Sistema desenvolvido por BeautyFlow Tech ·
+      <a href="login.html">Admin</a>
+    </p>
+  </footer>
+
+  <!-- WHATSAPP FIXO -->
+  <a id="waFixo" href="#" target="_blank" class="whatsapp-fixo">
+    <span>💬</span> WhatsApp
+  </a>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
