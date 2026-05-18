@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — BeautyFlow</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h2 id="sidebarNome">BeautyFlow</h2>
+      <p>Painel Administrativo</p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li>
+        <a href="#" class="ativo" onclick="trocarAba('dashboard',this)">
+          ?? Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="#" onclick="trocarAba('agenda',this)">
+          ?? Agenda
+        </a>
+      </li>
+      <li>
+        <a href="#" onclick="trocarAba('sumidas',this)">
+          ?? Clientes Sumidas
+          <span id="badgeSumidas" style="
+            margin-left:auto; background:var(--danger);
+            color:white; border-radius:999px;
+            font-size:11px; padding:1px 8px;
+            display:none;
+          ">0</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" onclick="trocarAba('config',this)">
+          ?? Configurações
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <a href="index.html" style="color:rgba(255,255,255,.5); font-size:13px; display:block; margin-bottom:8px;">
+        ?? Ver site
+      </a>
+      <button onclick="sair()" style="
+        color:rgba(255,255,255,.5); font-size:13px;
+        background:none; border:none; cursor:pointer;
+        font-family:var(--f-body); padding:0; text-align:left;
+      ">
+        ?? Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+  <main class="admin-main">
+
+    <!-- HEADER -->
+    <div class="admin-header">
+      <div>
+        <h1 id="headerNome">BeautyFlow Studio</h1>
+        <p>Bem-vinda! ?</p>
+      </div>
+      <div class="relogio" id="relogio">--:--:--</div>
+    </div>
+
+    <!-- ======= ABA: DASHBOARD ======= -->
+    <div class="aba ativa" id="aba-dashboard">
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">??</span>
+          <span class="stat-value" id="statTotal">0</span>
+          <span class="stat-label">Total de agendamentos</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">?</span>
+          <span class="stat-value" id="statHoje">0</span>
+          <span class="stat-label">Agendados hoje</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">?</span>
+          <span class="stat-value" id="statConcluidos">0</span>
+          <span class="stat-label">Concluídos</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">??</span>
+          <span class="stat-value" id="statFaturamento">R$0</span>
+          <span class="stat-label">Faturamento (concluídos)</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">??</span>
+          <span class="stat-value" id="statSumidas">0</span>
+          <span class="stat-label">Clientes sumidas</span>
+        </div>
+      </div>
+
+      <!-- Próximos agendamentos do dia -->
+      <div class="card">
+        <div class="card-header">
+          <h2>?? Hoje</h2>
+          <button class="btn-sm btn-del" onclick="imprimirAgenda()">??? Imprimir</button>
+        </div>
+        <div id="agendaHoje">
+          <div class="empty">
+            <span class="empty-icon">??</span>
+            <p>Nenhum agendamento para hoje</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======= ABA: AGENDA COMPLETA ======= -->
+    <div class="aba" id="aba-agenda">
+      <div class="card">
+        <div class="card-header">
+          <h2>?? Todos os Agendamentos</h2>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-sm btn-del" onclick="imprimirAgenda()">??? Imprimir</button>
+            <button class="btn-sm btn-ok"  onclick="exportarCSV()">?? Exportar CSV</button>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filtros">
+          <input type="date"   id="filtroData"   onchange="renderizarAgenda()" placeholder="Filtrar por data">
+          <select              id="filtroStatus" onchange="renderizarAgenda()">
+            <option value="">Todos os status</option>
+            <option value="Agendado">Agendado</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+          <select              id="filtroServico" onchange="renderizarAgenda()">
+            <option value="">Todos os serviços</option>
+          </select>
+          <input type="text"   id="filtroBusca" oninput="renderizarAgenda()" placeholder="?? Buscar por nome">
+        </div>
+
+        <div id="listaAgendamentos">
+          <div class="empty">
+            <span class="empty-icon">??</span>
+            <p>Nenhum agendamento encontrado</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= ABA: CLIENTES SUMIDAS ======= -->
+    <div class="aba" id="aba-sumidas">
+      <div class="card">
+        <div class="card-header">
+          <h2>?? Clientes que precisam voltar</h2>
+          <span style="font-size:13px; color:var(--text-muted);" id="labelSumidas"></span>
+        </div>
+        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">
+          Clientes que não agendaram há <strong id="diasInativos"></strong> dias ou mais.
+          Envie uma mensagem carinhosa para trazê-las de volta! ??
+        </p>
+        <div id="listaSumidas">
+          <div class="empty">
+            <span class="empty-icon">??</span>
+            <p>Todas as clientes retornaram recentemente!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= ABA: CONFIGURAÇÕES ======= -->
+    <div class="aba" id="aba-config">
+
+      <!-- Info do salão -->
+      <div class="card">
+        <div class="card-header"><h2>?? Informações do Salão</h2></div>
+        <div class="config-grid">
+          <div class="form-group">
+            <label>Nome do salão</label>
+            <input type="text" id="cfgNome" placeholder="BeautyFlow Studio">
+          </div>
+          <div class="form-group">
+            <label>Proprietária</label>
+            <input type="text" id="cfgDona" placeholder="Leticia Soares">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp (DDI+DDD+número)</label>
+            <input type="text" id="cfgWA" placeholder="5521977730274">
+          </div>
+          <div class="form-group">
+            <label>Instagram</label>
+            <input type="text" id="cfgInsta" placeholder="@seuperfil">
+          </div>
+          <div class="form-group config-full">
+            <label>Endereço / Cidade</label>
+            <input type="text" id="cfgEndereco" placeholder="Rua Exemplo, 123 - Rio de Janeiro">
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:18px;" onclick="salvarConfig()">
+          ?? Salvar Informações
+        </button>
+      </div>
+
+      <!-- Alterar senha -->
+      <div class="card">
+        <div class="card-header"><h2>?? Alterar Senha de Acesso</h2></div>
+        <div class="config-grid">
+          <div class="form-group">
+            <label>Novo usuário</label>
+            <input type="text" id="cfgUser" placeholder="admin">
+          </div>
+          <div class="form-group">
+            <label>Nova senha</label>
+            <input type="password" id="cfgSenha" placeholder="Nova senha">
+          </div>
+          <div class="form-group">
+            <label>Confirmar senha</label>
+            <input type="password" id="cfgSenha2" placeholder="Repita a senha">
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:18px;" onclick="salvarSenha()">
+          ?? Alterar Senha
+        </button>
+      </div>
+
+      <!-- Horários ativos -->
+      <div class="card">
+        <div class="card-header"><h2>? Horários Disponíveis</h2></div>
+        <p style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">
+          Marque os horários que você atende:
+        </p>
+        <div id="horariosConfig" style="display:flex; flex-wrap:wrap; gap:10px;">
+          <!-- Preenchido via JS -->
+        </div>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="salvarHorarios()">
+          ? Salvar Horários
+        </button>
+      </div>
+
+      <!-- Dados / Backup -->
+      <div class="card">
+        <div class="card-header"><h2>?? Dados e Backup</h2></div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="exportarJSON()">?? Exportar Backup</button>
+          <button class="btn btn-outline" onclick="importarJSON()" style="color:var(--primary); border:2px solid var(--primary);">
+            ?? Importar Backup
+          </button>
+          <button class="btn-sm btn-cancel" onclick="limparTudo()" style="padding:13px 20px; font-size:14px;">
+            ??? Apagar todos os dados
+          </button>
+        </div>
+        <input type="file" id="inputImport" accept=".json" style="display:none" onchange="processarImport(this)">
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h2 id="modalTitulo">Confirmar ação</h2>
+    <p  id="modalTexto">Deseja continuar?</p>
+    <div class="modal-btns">
+      <button class="btn-sm btn-del" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-sm btn-cancel" id="modalConfirmar">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
