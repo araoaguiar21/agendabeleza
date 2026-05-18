@@ -10,29 +10,36 @@
 
   <!-- ===== HERO ===== -->
   <section class="hero">
-    <div class="hero-badge">✦ Agendamento Online</div>
-
-    <h1 id="heroTitle">
-      leticia<em>soares</em><br>Studio
-    </h1>
-
-    <p class="hero-sub" id="heroSub">Beleza que transforma ✨</p>
-
+    <div class="hero-badge">Agendamento Online</div>
+    <h1 id="heroTitle">BeautyFlow Studio</h1>
+    <p class="hero-sub" id="heroSub">Beleza que transforma</p>
     <div class="hero-btns">
-      <a href="#agendamento" class="btn btn-white">💅 Agendar agora</a>
+      <a href="#agendamento" class="btn btn-white">Agendar agora</a>
       <a id="heroWaBtn" href="#" target="_blank" class="btn btn-outline">WhatsApp</a>
     </div>
+    <div class="hero-scroll"><div class="scroll-dot"></div></div>
   </section>
 
-  <!-- ===== SERVIÇOS ===== -->
+  <!-- ===== SERVICOS ===== -->
   <section class="section" id="servicos">
     <div class="section-header">
       <p class="section-label">O que oferecemos</p>
-      <h2 class="section-title">Nossos Serviços</h2>
+      <h2 class="section-title">Nossos Servicos</h2>
       <p class="section-sub">Cuidado e carinho em cada detalhe</p>
     </div>
-    <div class="servicos-grid" id="servicosGrid">
-      <!-- Preenchido via JS com CONFIG.services -->
+    <div class="servicos-grid" id="servicosGrid"></div>
+  </section>
+
+  <!-- ===== PORTFOLIO ===== -->
+  <section class="section portfolio-section" id="portfolio">
+    <div class="section-header">
+      <p class="section-label">Nossos trabalhos</p>
+      <h2 class="section-title">Portfolio</h2>
+      <p class="section-sub">Cada detalhe feito com amor e precisao</p>
+    </div>
+    <div id="galeriaPublica" class="galeria-grid"></div>
+    <div id="galeriaVazia" class="galeria-vazia" style="display:none;">
+      <p>Em breve fotos dos nossos trabalhos aqui!</p>
     </div>
   </section>
 
@@ -40,9 +47,9 @@
   <section class="section booking-section" id="agendamento">
     <div class="booking-wrapper">
       <div class="section-header">
-        <p class="section-label">Fácil e rápido</p>
-        <h2 class="section-title">Agendar Horário</h2>
-        <p class="section-sub">Preencha os dados e confirme pelo WhatsApp</p>
+        <p class="section-label">Facil e rapido</p>
+        <h2 class="section-title">Agendar Horario</h2>
+        <p class="section-sub">Preencha e confirme pelo WhatsApp</p>
       </div>
 
       <form id="formAgendamento">
@@ -51,57 +58,62 @@
             <label for="nome">Seu nome completo</label>
             <input type="text" id="nome" placeholder="Ex: Maria da Silva" required>
           </div>
-
           <div class="form-group form-full">
             <label for="telefone">WhatsApp (com DDD)</label>
-            <input type="tel" id="telefone" placeholder="(21) 99999-0000" required
-                   maxlength="15" oninput="mascararTelefone(this)">
+            <input type="tel" id="telefone" placeholder="(21) 99999-0000"
+                   required maxlength="15" oninput="mascararTelefone(this)">
           </div>
-
           <div class="form-group form-full">
-            <label for="servico">Serviço desejado</label>
+            <label for="servico">Servico desejado</label>
             <select id="servico" required>
-              <option value="">Escolha um serviço...</option>
-              <!-- Preenchido via JS -->
+              <option value="">Escolha um servico...</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="data">Data</label>
             <input type="date" id="data" required>
           </div>
-
           <div class="form-group">
-            <label for="horario">Horário</label>
+            <label for="horario">Horario</label>
             <select id="horario" required>
               <option value="">Selecione a data primeiro</option>
             </select>
           </div>
         </div>
-
-        <div id="avisoHorario" style="display:none; color:var(--danger); font-size:14px; margin-bottom:8px; padding:10px; background:#FFF0F0; border-radius:8px;"></div>
-
+        <div id="avisoHorario" style="display:none;color:var(--danger);font-size:14px;
+             margin-bottom:8px;padding:10px 14px;background:#FFF0F0;border-radius:8px;"></div>
         <button type="submit" class="btn btn-primary btn-block">
-          ✅ Confirmar Agendamento
+          Confirmar Agendamento
         </button>
       </form>
     </div>
   </section>
 
-  <!-- ===== RODAPÉ ===== -->
+  <!-- ===== RODAPE ===== -->
   <footer>
     <p><strong id="footerName">BeautyFlow Studio</strong></p>
     <p style="margin-top:6px;" id="footerAddress"></p>
-    <p style="margin-top:10px; font-size:12px;">
-      Sistema desenvolvido por BeautyFlow Tech ·
-      <a href="login.html">Admin</a>
+    <p style="margin-top:6px;" id="footerInsta"></p>
+    <p style="margin-top:14px;font-size:12px;opacity:.5;">
+      Sistema BeautyFlow &middot;
+      <a href="login.html" style="color:inherit;">Painel Admin</a>
     </p>
   </footer>
 
   <!-- WHATSAPP FIXO -->
-  <a id="waFixo" href="#" target="_blank" class="whatsapp-fixo">
-    <span>💬</span> WhatsApp
-  </a>
+  <a id="waFixo" href="#" target="_blank" class="whatsapp-fixo">WA WhatsApp</a>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" class="lightbox">
+    <div class="lb-overlay" id="lbOverlay"></div>
+    <button class="lb-close" id="lbClose">&times;</button>
+    <button class="lb-arrow lb-prev" id="lbPrev">&#10094;</button>
+    <button class="lb-arrow lb-next" id="lbNext">&#10095;</button>
+    <div class="lb-content">
+      <img id="lbImg" src="" alt="">
+      <p id="lbCaption" class="lb-caption"></p>
+    </div>
+  </div>
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
