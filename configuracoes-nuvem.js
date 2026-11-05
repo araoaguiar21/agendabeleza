@@ -52,7 +52,11 @@ s.innerHTML=`
 </div>
 <div class="ls-cloud-actions"><button class="ls-cloud-primary" type="submit" id="cfgCloudSalvar">Salvar configurações</button></div>
 </form></div>`;
-main.insertBefore(s,main.querySelector(".ls-cloud-nota"));
+var rodape = main.querySelector(":scope > p.ls-cloud-nota");
+if (rodape) {
+  main.insertBefore(s, rodape);
+  rodape.textContent = "Serviços, cursos, agenda, portfólio e configurações estão conectados ao Supabase. As solicitações públicas de horários ainda precisam da confirmação da Letícia.";
+} else main.appendChild(s);
 q("formConfigCloud").addEventListener("submit",salvar);
 }
 function preencher(d){
