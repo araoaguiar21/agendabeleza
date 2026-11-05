@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Painel seguro | Letícia Soares</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="painel-nuvem.css">
+</head>
+<body>
+  <main class="ls-cloud-wrap" id="telaCloud" hidden>
+    <header class="ls-cloud-header">
+      <div>
+        <p class="ls-cloud-kicker">STUDIO & ACADEMIA</p>
+        <h1>Letícia Soares</h1>
+        <p>Painel seguro de serviços, preços e cursos</p>
+      </div>
+      <div class="ls-cloud-atalhos">
+        <a href="index.html">Ver site</a>
+        <button type="button" id="sairCloud">Sair</button>
+      </div>
+    </header>
+    <nav class="ls-cloud-tabs" aria-label="Áreas do painel">
+      <button type="button" id="abaServicoBotao" class="selecionado">💅 Serviços e preços</button>
+      <button type="button" id="abaCursoBotao">🎓 Cursos e turmas</button>
+    </nav>
+    <div id="cloudMensagem" role="status" class="ls-cloud-mensagem" hidden></div>
+
+    <section id="secaoServicos" class="ls-cloud-secao">
+      <div class="ls-cloud-card">
+        <h2>Cadastrar / editar serviço</h2>
+        <form id="formCloudServico">
+          <input type="hidden" id="servicoCloudId">
+          <div class="ls-cloud-grid">
+            <label>Nome do serviço *
+              <input id="servicoCloudNome" maxlength="100" required placeholder="Ex.: Alongamento em gel">
+            </label>
+            <label>Preço (R$) *
+              <input id="servicoCloudPreco" type="number" min="0" max="100000" step="0.01" required placeholder="80.00">
+            </label>
+            <label>Duração em minutos
+              <input id="servicoCloudDuracao" type="number" min="0" max="1440" step="5" value="60">
+            </label>
+            <label>Emoji
+              <input id="servicoCloudEmoji" maxlength="8" placeholder="💅" value="💅">
+            </label>
+            <label class="ls-cloud-full">Descrição
+              <textarea id="servicoCloudDescricao" maxlength="1000" rows="3"></textarea>
+            </label>
+          </div>
+          <label class="ls-cloud-check"><input type="checkbox" id="servicoCloudAtivo" checked> Aparecer no site</label>
+          <div class="ls-cloud-actions">
+            <button type="submit" class="ls-cloud-primary">Salvar serviço</button>
+            <button type="button" id="limparCloudServico" class="ls-cloud-secondary">Novo serviço</button>
+          </div>
+        </form>
+      </div>
+      <div class="ls-cloud-card">
+        <h2>Serviços cadastrados</h2>
+        <div id="listaCloudServicos"></div>
+      </div>
+    </section>
+
+    <section id="secaoCursos" class="ls-cloud-secao" hidden>
+      <div class="ls-cloud-card">
+        <h2>Cadastrar / editar curso</h2>
+        <form id="formCloudCurso">
+          <input type="hidden" id="cursoCloudId">
+          <div class="ls-cloud-grid">
+            <label class="ls-cloud-full">Nome do curso *
+              <input id="cursoCloudNome" maxlength="100" required placeholder="Ex.: Curso de alongamento em gel">
+            </label>
+            <label class="ls-cloud-full">Descrição *
+              <textarea id="cursoCloudDescricao" rows="4" maxlength="2000" required></textarea>
+            </label>
+            <label>Formato
+              <select id="cursoCloudFormato">
+                <option value="turma">Turma com data definida</option>
+                <option value="continuo">Inscrições contínuas</option>
+              </select>
+            </label>
+            <label>Preço (R$) — deixe vazio para consultar
+              <input id="cursoCloudPreco" type="number" min="0" max="100000" step="0.01" placeholder="350.00">
+            </label>
+            <label class="ls-cloud-datas">Data de início *
+              <input id="cursoCloudInicio" type="date">
+            </label>
+            <label class="ls-cloud-datas">Data de término
+              <input id="cursoCloudFim" type="date">
+            </label>
+            <label>Dias da semana
+              <input id="cursoCloudDias" maxlength="120" placeholder="Ex.: sábados">
+            </label>
+            <label>Hora de início
+              <input id="cursoCloudHoraInicio" type="time">
+            </label>
+            <label>Hora de término
+              <input id="cursoCloudHoraFim" type="time">
+            </label>
+            <label>Quantidade de vagas
+              <input id="cursoCloudVagas" type="number" min="1" max="10000" step="1">
+            </label>
+            <label class="ls-cloud-full">Local
+              <input id="cursoCloudLocal" maxlength="150" placeholder="Local a combinar">
+            </label>
+          </div>
+          <label class="ls-cloud-check"><input id="cursoCloudPublicado" type="checkbox" checked> Publicar no site</label>
+          <div class="ls-cloud-actions">
+            <button type="submit" class="ls-cloud-primary">Salvar curso</button>
+            <button type="button" id="limparCloudCurso" class="ls-cloud-secondary">Novo curso</button>
+          </div>
+        </form>
+      </div>
+      <div class="ls-cloud-card">
+        <h2>Cursos cadastrados</h2>
+        <div id="listaCloudCursos"></div>
+      </div>
+    </section>
+    <p class="ls-cloud-nota">Nesta etapa, serviços e cursos ficam na nuvem. A agenda, galeria e as demais
+      áreas do painel antigo ainda não foram migradas.</p>
+  </main>
+  <div id="aguardandoCloud" class="ls-cloud-aguarde" role="status">Conferindo acesso seguro ao painel…</div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="nuvem-cliente.js"></script>
+  <script src="painel-nuvem.js"></script>
+</body>
+</html>
