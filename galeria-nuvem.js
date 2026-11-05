@@ -13,7 +13,7 @@ document.querySelectorAll(".ls-cloud-tabs button").forEach(x=>x.classList.remove
 q("secaoGaleriaCloud").hidden=false;q("botaoGaleriaCloud").classList.add("selecionado");
 buscar().catch(e=>aviso(e.message,true));
 }
-function interface(){
+function montarInterface(){
 if(q("botaoGaleriaCloud"))return;
 var nav=document.querySelector(".ls-cloud-tabs"),main=q("telaCloud");
 if(!nav||!main)return;
@@ -99,7 +99,7 @@ if(!db||!q("telaCloud"))return;
 try{
 var user=await db.auth.getUser();if(user.error||!user.data?.user)return;
 var check=await db.rpc("can_manage_studio");if(check.error||check.data!==true)return;
-interface();await buscar();
+montarInterface();await buscar();
 }catch(e){console.error("Portfólio:",e);if(q("galeriaAviso"))aviso(e.message,true);}
 }
 iniciar();
