@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste Supabase — Letícia Soares</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background:#fdf5f8; min-height:100vh; padding:36px 16px; }
+    .teste-caixa { max-width:540px; margin:auto; background:white; border-radius:18px;
+      padding:28px; box-shadow:0 10px 40px rgba(90,25,55,.09); }
+    .teste-caixa h1 { font-size:28px; margin-bottom:12px; }
+    .teste-caixa p { margin:10px 0; }
+    .status { padding:12px 14px; background:#f1f1f1; border-radius:8px; white-space:pre-line;
+      font-size:14px; margin:16px 0; }
+    .status.ok { background:#e9f8ee; color:#176536; }
+    .status.erro { background:#ffe8e8; color:#982b2b; }
+    .teste-caixa button { margin-top:14px; }
+  </style>
+</head>
+<body>
+  <main class="teste-caixa">
+    <h1>💅 Teste da conexão Supabase</h1>
+    <p>Vamos confirmar que o site consegue ler o banco e reconhecer a conta
+      administrativa da Letícia.</p>
+
+    <div id="conexaoStatus" class="status" role="status">Verificando a conexão…</div>
+
+    <form id="testeLogin" class="login-form" hidden>
+      <div class="form-group">
+        <label for="emailTeste">E-mail da conta cadastrada no Supabase</label>
+        <input id="emailTeste" type="email" autocomplete="username" required>
+      </div>
+      <div class="form-group">
+        <label for="senhaTeste">Senha da conta no Supabase</label>
+        <input id="senhaTeste" type="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Testar login seguro</button>
+    </form>
+
+    <div id="loginStatus" class="status" role="status" hidden></div>
+    <p><a href="index.html">← Voltar ao site</a></p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    (async function () {
+      "use strict";
+
+      var status = document.getElementById("conexaoStatus");
+      var statusLogin = document.getElementById("loginStatus");
+      var form = document.getElementById("testeLogin");
+      var config = window.LETICIA_SUPABASE_CONFIG || {};
+
+      function mostrar(destino, texto, tipo) {
+        destino.textContent = texto;
+        destino.className = "status " + (tipo || "");
+        destino.hidden = false;
+      }
+
+      if (!window.supabase || typeof window.supabase.createClient !== "function") {
+        mostrar(status, "A biblioteca Supabase não carregou. Confira a conexão com a internet.", "erro");
+        return;
+      }
+
+      if (!/^https:\/\/[a-zA-Z0-9-]+\.supabase\.co$/.test(config.url || "") ||
+          !/^sb_publishable_/.test(config.publishableKey || "") ||
+          config.publishableKey === "sb_publishable_COLE_AQUI") {
+        mostrar(status, "Preencha a URL e a chave PUBLICÁVEL no arquivo supabase-config.js.", "erro");
+        return;
+      }
+
+      var db;
+      try {
+        db = window.supabase.createClient(config.url, config.publishableKey);
+        var resultado = await db.from("services").select("id").limit(1);
+        if (resultado.error) throw resultado.error;
+        mostrar(status, "✅ Conexão com o banco de dados funcionando!\n" +
+          "A consulta à tabela services foi autorizada.", "ok");
+        form.hidden = false;
+      } catch (erro) {
+        mostrar(status, "Não foi possível consultar services: " + erro.message, "erro");
+        return;
+      }
+
+      form.addEventListener("submit", async function (evento) {
+        evento.preventDefault();
+        mostrar(statusLogin, "Verificando o login…");
+        var botao = form.querySelector("button[type=submit]");
+        botao.disabled = true;
+
+        try {
+          var email = document.getElementById("emailTeste").value.trim();
+          var senha = document.getElementById("senhaTeste").value;
+          var entrada = await db.auth.signInWithPassword({email: email, password: senha});
+          if (entrada.error) throw entrada.error;
+          document.getElementById("senhaTeste").value = "";
+
+          var permissao = await db.rpc("can_manage_studio");
+          if (permissao.error) throw permissao.error;
+
+          if (permissao.data !== true) {
+            await db.auth.signOut();
+            mostrar(statusLogin,
+              "O login foi aceito, mas essa conta não foi encontrada em admin_users.", "erro");
+            return;
+          }
+
+          mostrar(statusLogin,
+            "✅ Login com Supabase funcionando!\n✅ Conta autorizada como administradora!",
+            "ok");
+        } catch (erro) {
+          mostrar(statusLogin, "Falha na verificação: " + erro.message, "erro");
+        } finally {
+          botao.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
