@@ -39,7 +39,9 @@ sec.innerHTML=`
 <div id="galeriaAviso" class="ls-cloud-mensagem" role="status" hidden></div>
 <div id="listaGaleriaCloud" class="ls-galeria-lista"></div>
 </div>`;
-main.insertBefore(sec,main.querySelector(".ls-cloud-nota"));
+var rodape = main.querySelector(":scope > p.ls-cloud-nota");
+if (rodape) main.insertBefore(sec, rodape);
+else main.appendChild(sec);
 var style=document.createElement("style");
 style.textContent=".ls-galeria-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}.ls-galeria-card{border:1px solid #edd6e0;padding:11px;border-radius:12px}.ls-galeria-card img{width:100%;height:170px;object-fit:cover;border-radius:8px}.ls-galeria-card p{margin:9px 0;font-size:14px;overflow-wrap:anywhere}.ls-galeria-card small{font-size:12px;color:#795d6b}.ls-galeria-acoes{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.ls-galeria-acoes button{border:1px solid #ebcada;background:#fff6f9;border-radius:8px;padding:8px;font-size:12px;cursor:pointer}";
 document.head.appendChild(style);
