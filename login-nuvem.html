@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login seguro | Letícia Soares</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body{background:#fff6f9;min-height:100vh;padding:18px}
+    .ls-auth{max-width:440px;margin:8vh auto 0;background:white;padding:32px;
+      border-radius:22px;box-shadow:0 14px 55px rgba(90,25,50,.10)}
+    .ls-auth h1{font-size:28px;margin:0 0 6px}
+    .ls-auth p{margin:0 0 25px;color:#7b6170}
+    .ls-auth label{display:block;margin:14px 0 6px}
+    .ls-auth input{display:block;width:100%;padding:13px;border:1px solid #decbd4;border-radius:10px}
+    .ls-auth button{margin-top:22px;width:100%}
+    #loginAviso{margin-top:16px;white-space:pre-line;font-size:14px}
+    #loginAviso[hidden]{display:none}
+  </style>
+</head>
+<body>
+  <main class="ls-auth">
+    <h1>💅 Letícia Soares</h1>
+    <p>Entrar no painel seguro da Academia e do Studio.</p>
+    <form id="formNuvemLogin">
+      <label for="emailNuvem">E-mail cadastrado no Supabase</label>
+      <input type="email" id="emailNuvem" required autocomplete="username">
+      <label for="senhaNuvem">Senha</label>
+      <input type="password" id="senhaNuvem" required autocomplete="current-password">
+      <button type="submit" class="btn btn-primary">Entrar com segurança</button>
+    </form>
+    <p id="loginAviso" role="status" hidden></p>
+    <p style="margin-top:24px"><a href="index.html">← Voltar ao site</a></p>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="nuvem-cliente.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      var form = document.getElementById("formNuvemLogin");
+      var aviso = document.getElementById("loginAviso");
+      function mostrar(msg, erro) {
+        aviso.hidden = false;
+        aviso.textContent = msg;
+        aviso.style.color = erro ? "#b42336" : "#207944";
+      }
+      if (!window.studioDb) {
+        mostrar(window.studioCloudError || "Não foi possível iniciar Supabase.", true);
+        form.querySelector("button").disabled = true;
+        return;
+      }
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        var btn = form.querySelector("button");
+        btn.disabled = true;
+        mostrar("Verificando acesso…", false);
+        try {
+          var resposta = await window.studioDb.auth.signInWithPassword({
+            email: document.getElementById("emailNuvem").value.trim(),
+            password: document.getElementById("senhaNuvem").value
+          });
+          document.getElementById("senhaNuvem").value = "";
+          if (resposta.error) throw resposta.error;
+          var autorizado = await window.studioDb.rpc("can_manage_studio");
+          if (autorizado.error) throw autorizado.error;
+          if (autorizado.data !== true) {
+            await window.studioDb.auth.signOut();
+            throw new Error("Essa conta não está autorizada em admin_users.");
+          }
+          window.location.replace("painel-nuvem.html");
+        } catch (erro) {
+          mostrar("Não foi possível entrar: " + erro.message, true);
+          btn.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
