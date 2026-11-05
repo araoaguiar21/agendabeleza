@@ -25,7 +25,7 @@ function script(html,nome){
 alterar("index.html",function(html){
   if(!html.includes("servicosGrid"))throw Error("index.html não parece ser o site correto");
   // Evita que o módulo de cursos locais preencha a página e gere duplicação.
-  html=html.replace(/^\s*<script src=["']cursos\.js["']><\/script>\s*$/gmi,"");
+  html=html.replace(/<script\s+src=["']cursos\.js["']><\/script>/gmi,"");
   if(!html.includes('href="cursos.css"')){
     html=html.replace("</head>",'  <link rel="stylesheet" href="cursos.css">\n</head>');
   }
