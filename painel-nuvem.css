@@ -1,0 +1,35 @@
+body{min-height:100vh;background:#fff7f9;color:#39252d}
+[hidden]{display:none!important}
+.ls-cloud-wrap{max-width:1050px;margin:0 auto;padding:22px 16px 55px}
+.ls-cloud-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 0 26px}
+.ls-cloud-header h1{font-size:clamp(28px,4vw,40px);line-height:1.15}
+.ls-cloud-header p{margin:7px 0 0;color:#7f6371}
+.ls-cloud-kicker{letter-spacing:2px;font-size:11px;font-weight:700;color:#b13265!important}
+.ls-cloud-atalhos{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.ls-cloud-atalhos a,.ls-cloud-atalhos button{border:1px solid #e8cbda;border-radius:10px;padding:10px 14px;background:white;color:#7b2c4f;text-decoration:none;font-size:14px;cursor:pointer}
+.ls-cloud-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.ls-cloud-tabs button{border:1px solid #ebd4df;background:white;border-radius:10px;padding:12px 17px;cursor:pointer;font-weight:700;color:#734a61}
+.ls-cloud-tabs button.selecionado{background:#9e315c;color:#fff}
+.ls-cloud-card{background:white;border:1px solid #f0dbe4;border-radius:18px;padding:24px;margin-bottom:20px;box-shadow:0 8px 27px rgba(95,26,59,.045)}
+.ls-cloud-card h2{font-size:22px;margin:0 0 20px}
+.ls-cloud-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.ls-cloud-grid label{display:flex;flex-direction:column;gap:7px;font-size:14px;font-weight:600}
+.ls-cloud-grid input,.ls-cloud-grid textarea,.ls-cloud-grid select{width:100%;font:inherit;font-weight:400;padding:12px;border:1px solid #e4d3d9;border-radius:9px;min-width:0;background:white;color:#30242a}
+.ls-cloud-full{grid-column:1/-1}
+.ls-cloud-check{display:flex;align-items:center;gap:9px;margin:19px 0 0;font-size:14px}
+.ls-cloud-check input{width:18px;height:18px;flex:none}
+.ls-cloud-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.ls-cloud-primary,.ls-cloud-secondary{border:0;border-radius:10px;padding:12px 18px;cursor:pointer;font-weight:700}
+.ls-cloud-primary{background:#9e315c;color:white}
+.ls-cloud-secondary{background:#f9ecf1;color:#73304e}
+.ls-cloud-primary:disabled{opacity:.5}
+.ls-cloud-item{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 2px;border-top:1px solid #f4e5eb}
+.ls-cloud-item strong{display:block}
+.ls-cloud-item small{display:block;margin-top:5px;color:#795d6b}
+.ls-cloud-item-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ls-cloud-item-actions button{border:1px solid #e7cbda;background:#fff6f9;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.ls-cloud-mensagem{background:#f0f7f2;color:#225d33;border-radius:12px;padding:13px 17px;margin-bottom:16px}
+.ls-cloud-mensagem.erro{background:#ffe9ee;color:#9d263c}
+.ls-cloud-aguarde{text-align:center;padding:60px 16px;color:#7b5264}
+.ls-cloud-nota{font-size:13px;color:#826d77;line-height:1.5;margin-top:16px}
+@media(max-width:640px){.ls-cloud-header{flex-direction:column;align-items:flex-start}.ls-cloud-grid{grid-template-columns:1fr}.ls-cloud-full{grid-column:auto}.ls-cloud-item{flex-direction:column;align-items:flex-start}.ls-cloud-item-actions{width:100%}.ls-cloud-card{padding:17px}}
