@@ -6,7 +6,7 @@
 var db=window.studioDb, BUCKET="leticia-portfolio", botao=null;
 function q(id){return document.getElementById(id);}
 function informar(msg,erro){
-var e=q("galeriaAviso");if(!e)return;
+var e=q("galeriaAviso")||q("galeriaNuvemAviso");if(!e)return;
 e.hidden=false;e.className="ls-cloud-mensagem"+(erro?" erro":"");e.textContent=msg;
 }
 function ler(){
@@ -45,17 +45,24 @@ informar(importadas+" foto(s) enviadas! As fotos antigas continuam no navegador.
 }catch(e){informar("Importação parou após "+importadas+" fotos: "+e.message+". Não repita sem verificar duplicações.",true);}
 finally{botao.disabled=false;}
 }
+function colocarBotao(){
+if(q("importarFotosAntigasCloud"))return;
+var sec=q("secaoGaleriaCloud");if(!sec)return;
+botao=document.createElement("button");botao.id="importarFotosAntigasCloud";botao.type="button";
+botao.className="ls-cloud-secondary";botao.textContent="Importar fotos da galeria antiga";
+var card=sec.querySelector(".ls-cloud-card");if(card)card.appendChild(botao);
+botao.addEventListener("click",importar);
+}
 async function iniciar(){
 if(!db||!q("telaCloud"))return;
 try{
 var user=await db.auth.getUser();if(user.error||!user.data?.user)return;
 var perm=await db.rpc("can_manage_studio");if(perm.error||perm.data!==true)return;
-var sec=q("secaoGaleriaCloud");if(!sec)return;
-botao=document.createElement("button");botao.type="button";
-botao.className="ls-cloud-secondary";botao.textContent="Importar fotos da galeria antiga";
-var card=sec.querySelector(".ls-cloud-card");
-if(card)card.appendChild(botao);
-botao.addEventListener("click",importar);
+if(q("secaoGaleriaCloud"))colocarBotao();
+else{
+var obs=new MutationObserver(function(){if(q("secaoGaleriaCloud")){obs.disconnect();colocarBotao();}});
+obs.observe(q("telaCloud"),{childList:true,subtree:true});
+}
 }catch(e){console.error("Importação de fotos:",e);}
 }
 iniciar();
