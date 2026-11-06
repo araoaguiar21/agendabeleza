@@ -115,8 +115,8 @@
     agenda.innerHTML = `
       <div class="ls-cloud-card">
         <h2>Novo agendamento</h2>
-        <p class="ls-agenda-nota">Cadastre um horário manualmente aqui.
-          O formulário público do site ainda será conectado à nuvem em outra etapa.</p>
+        <p class="ls-agenda-nota">Cadastre atendimentos diretamente na nuvem.
+          Os horários serão validados com base na duração do serviço e nos bloqueios de folga.</p>
         <form id="formAgendaCloud">
           <input id="agCloudId" type="hidden">
           <div class="ls-cloud-grid">
@@ -140,6 +140,9 @@
             </label>
             <label>Horário *
               <input id="agCloudHora" type="time" required>
+            </label>
+            <label>Duração (minutos) *
+              <input id="agCloudDuracao" type="number" min="15" max="1440" step="5" value="60" required>
             </label>
             <label>Status
               <select id="agCloudStatus">
@@ -209,7 +212,7 @@
   async function buscarDados() {
     var consultas = await Promise.all([
       db.from("appointments").select("*").order("appointment_date",{ascending:false}).limit(1000),
-      db.from("services").select("name,price_cents,active").order("name")
+      db.from("services").select("name,price_cents,duration_minutes,active").order("name")
     ]);
     if (consultas[0].error) throw consultas[0].error;
     if (consultas[1].error) throw consultas[1].error;
@@ -253,7 +256,7 @@
     info.appendChild(no("strong",dataBR(a.appointment_date)+" às "+
       String(a.appointment_time).slice(0,5)+" — "+a.customer_name));
     info.appendChild(no("small",a.service_name+" · "+dinheiro(a.price_cents)+
-      " · "+a.status));
+      " · "+(a.duration_minutes||60)+" min · "+a.status));
     info.appendChild(no("small","WhatsApp: "+a.phone));
     var actions = document.createElement("div");
     actions.className = "ls-agenda-item-actions";
@@ -377,6 +380,7 @@
       el("agCloudServico").appendChild(op);el("agCloudServico").value=a.service_name;
     }
     el("agCloudPreco").value=(a.price_cents/100).toFixed(2);
+    el("agCloudDuracao").value=a.duration_minutes||60;
     el("agCloudData").value=a.appointment_date;
     el("agCloudHora").value=a.appointment_time.slice(0,5);
     el("agCloudStatus").value=a.status;
@@ -387,6 +391,7 @@
     el("formAgendaCloud").reset();
     el("agCloudId").value="";
     el("agCloudData").value=dataHoje();
+    el("agCloudDuracao").value="60";
   }
 
   async function salvar(evento) {
@@ -395,16 +400,18 @@
     var telefone=telefoneLimpo(el("agCloudTelefone").value);
     var servico=el("agCloudServico").value.trim();
     var preco=Number(el("agCloudPreco").value||0);
+    var minutos=Number(el("agCloudDuracao").value);
     var data=el("agCloudData").value;
     var hora=el("agCloudHora").value;
     if(nome.length<2||nome.length>120||telefone.length<10||telefone.length>15||
-      !servico||!data||!hora||!Number.isFinite(preco)||preco<0||preco>100000){
+      !servico||!data||!hora||!Number.isFinite(preco)||preco<0||preco>100000||
+      !Number.isInteger(minutos)||minutos<15||minutos>1440){
       aviso("Confira nome, telefone, serviço, data, horário e valor.",true);return;
     }
     var registro={
       customer_name:nome,phone:telefone,service_name:servico,
       appointment_date:data,appointment_time:hora,
-      price_cents:Math.round(preco*100),
+      price_cents:Math.round(preco*100),duration_minutes:minutos,
       status:el("agCloudStatus").value,
       updated_at:new Date().toISOString()
     };
@@ -419,7 +426,8 @@
       limpar();await buscarDados();
       aviso(id?"Atendimento atualizado na nuvem.":"Atendimento cadastrado na nuvem.",false);
     }catch(e){
-      aviso(e.code==="23505"?"Já existe atendimento agendado nesta data e horário.":
+      aviso(e.code==="23505"?"Já existe atendimento durante esse intervalo.":
+        e.code==="23514"?"O horário está bloqueado ou a duração é inválida.":
         "Erro ao salvar: "+e.message,true);
     }finally{btn.disabled=false;}
   }
@@ -500,7 +508,10 @@
     });
     el("agCloudServico").addEventListener("change",function(){
       var s=servicos.find(function(x){return x.name===el("agCloudServico").value;});
-      if(s)el("agCloudPreco").value=(s.price_cents/100).toFixed(2);
+      if(s){
+        el("agCloudPreco").value=(s.price_cents/100).toFixed(2);
+        el("agCloudDuracao").value=Math.max(15,Number(s.duration_minutes)||60);
+      }
     });
     var btnImportar=botao("Importar agenda antiga",importarAgendaAntiga);
     btnImportar.className="ls-cloud-secondary";
