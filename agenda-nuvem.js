@@ -489,6 +489,9 @@
     el("filtroAgendaStatus").addEventListener("change",renderAgenda);
     el("filtroAgendaBusca").addEventListener("input",renderAgenda);
     el("diasSumidasCloud").addEventListener("input",renderSumidas);
+    document.addEventListener("studio-appointment-changed",function(){
+      buscarDados().catch(function(e){aviso("Erro ao atualizar agenda: "+e.message,true);});
+    });
     el("limparFiltrosAgendaCloud").addEventListener("click",function(){
       el("filtroAgendaData").value="";
       el("filtroAgendaStatus").value="";
