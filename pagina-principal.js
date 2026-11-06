@@ -144,10 +144,7 @@ function melhorarHero(){
   desenho.appendChild(no("div","Studio Letícia Soares","ls-illustration-mini"));
   visual.appendChild(desenho);
   art.appendChild(visual);
-  var sticker=no("div",null,"ls-hero-sticker");
-  sticker.appendChild(no("strong","Feito para você"));
-  sticker.appendChild(no("span","Cuidados com as unhas e formação profissional"));
-  art.appendChild(sticker);
+  // Sem etiqueta sobre a arte: o arco e o nome precisam ficar desobstruídos.
   div.appendChild(copy);div.appendChild(art);
   hero.insertBefore(div,hero.firstChild);
   function usarFoto(){
