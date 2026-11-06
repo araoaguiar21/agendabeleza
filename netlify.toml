@@ -1,0 +1,9 @@
+# Publicação segura: apenas o conteúdo gerado em dist/ fica acessível.
+[build]
+  command = "node deploy/build.js"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Mantenha login.html e admin.html no código-fonte; nunca publique a raiz inteira.
