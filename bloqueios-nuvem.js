@@ -29,6 +29,12 @@ function mostrar(){
 }
 function montar(){
  if(el("secaoBloqueios"))return;
+ var duracaoServico=el("servicoCloudDuracao");
+ if(duracaoServico){
+  duracaoServico.min="15";
+  duracaoServico.required=true;
+  duracaoServico.title="Informe ao menos 15 minutos para calcular horários livres.";
+ }
  var nav=document.querySelector(".ls-cloud-tabs");
  var main=el("telaCloud");
  if(!nav||!main)return;
