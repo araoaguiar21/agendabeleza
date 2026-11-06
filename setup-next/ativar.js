@@ -38,6 +38,36 @@ alterar("index.html",function(html){
     "galeria-nuvem-publico.js","configuracoes-publicas.js","agendamento-publico.js"
   ].forEach(nome=>{html=script(html,nome);});
   html=html.replace(/href=(["'])login\.html\1/gi,'href="login-nuvem.html"');
+  // Garante que a Academia exista ANTES de carregar os cursos do Supabase.
+  if(!/id=["']academia["']/i.test(html)){
+    const academia = [
+      '<section class="section ls-academia-section" id="academia">',
+      '  <div class="section-header">',
+      '    <p class="section-label">Formação profissional</p>',
+      '    <h2 class="section-title">Academia Letícia Soares</h2>',
+      '    <p class="section-sub">Cursos presenciais de nail design. Conheça as turmas e datas disponíveis.</p>',
+      '  </div>',
+      '  <div class="ls-cursos-publicos">',
+      '    <h3 class="ls-titulo-cursos">Cursos disponíveis</h3>',
+      '    <div id="listaCursosPublicos" class="ls-cursos-grid"></div>',
+      '  </div>',
+      '  <div style="text-align:center;margin-top:30px">',
+      '    <a class="btn btn-primary" id="academiaWhatsApp" href="#contato">Informações sobre cursos</a>',
+      '  </div>',
+      '</section>'
+    ].join("\n");
+    html=html.replace(/(?=<section\b[^>]*\bid=["']agendamento["'])/i,academia+"\n");
+  }
+
+  // Descrição para mecanismos de busca (sem inventar preços, endereço ou avaliações).
+  if(!/name=["']description["']/i.test(html)){
+    html=html.replace(/<\/head>/i,
+      '  <meta name="description" content="Studio Letícia Soares: serviços de nail design, portfólio de trabalhos, cursos presenciais e solicitação de horários.">\n</head>');
+  }
+  if(!html.includes('href="pagina-principal.css"')){
+    html=html.replace(/<\/head>/i,'  <link rel="stylesheet" href="pagina-principal.css">\n</head>');
+  }
+  html=script(html,"pagina-principal.js");
   return html;
 });
 alterar("painel-nuvem.html",function(html){
