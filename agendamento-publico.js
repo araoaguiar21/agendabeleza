@@ -65,29 +65,25 @@ document.addEventListener("studio-settings-loaded",atualizarWhatsApp);
 atualizarWhatsApp();
 
 var requisicao=0;
-function slots(){
-var lista=config().time_slots||
-(typeof getHorarios==="function"?getHorarios():[]);
-if(!Array.isArray(lista))lista=[];
-return [...new Set(lista)].filter(x=>/^([01]\d|2[0-3]):[0-5]\d$/.test(x)).sort();
-}
 async function atualizarHorarios(){
-var dia=data.value, id=++requisicao;
+var dia=data.value, servico=document.getElementById("servico").value, id=++requisicao;
 hora.disabled=true;hora.replaceChildren();
 var vazio=document.createElement("option");
-vazio.value="";vazio.textContent=dia?"Consultando horários…":"Escolha uma data primeiro";
+vazio.value="";
+vazio.textContent=!servico?"Escolha um serviço primeiro":
+(!dia?"Escolha uma data primeiro":"Consultando horários…");
 hora.appendChild(vazio);
-if(!dia)return;
+if(!dia||!servico)return;
 if(!db){
 aviso.textContent="Não foi possível conectar à agenda. Use o WhatsApp para solicitar.";
 return;
 }
 try{
-var resposta=await db.rpc("booked_slots",{p_day:dia});
+var resposta=await db.rpc("available_studio_slots",{p_day:dia,p_service:servico});
 if(resposta.error)throw resposta.error;
-if(id!==requisicao||data.value!==dia)return;
-var ocupados=new Set((resposta.data||[]).map(x=>x.slot));
-var disponiveis=slots().filter(x=>!ocupados.has(x));
+if(id!==requisicao||data.value!==dia||
+   document.getElementById("servico").value!==servico)return;
+var disponiveis=(resposta.data||[]).map(x=>x.slot);
 hora.replaceChildren();
 var placeholder=document.createElement("option");placeholder.value="";
 placeholder.textContent=disponiveis.length?"Escolha um horário":"Sem horários livres";
@@ -96,7 +92,9 @@ disponiveis.forEach(function(s){
 var opt=document.createElement("option");opt.value=s;opt.textContent=s;hora.appendChild(opt);
 });
 hora.disabled=!disponiveis.length;
-aviso.textContent=disponiveis.length?"Horários sujeitos à confirmação pela Letícia.":"Sem horários para esta data.";
+aviso.textContent=disponiveis.length
+?"Horários calculados conforme a duração do serviço e as folgas; sujeitos à confirmação."
+:"Não há horários livres para esse serviço na data selecionada.";
 }catch(erro){
 if(id!==requisicao)return;
 hora.replaceChildren();
@@ -108,9 +106,10 @@ console.error("Consulta de disponibilidade:",erro);
 }
 data.addEventListener("change",atualizarHorarios);
 data.addEventListener("input",atualizarHorarios);
+document.getElementById("servico").addEventListener("change",atualizarHorarios);
 document.addEventListener("studio-settings-loaded",atualizarHorarios);
+document.addEventListener("studio-services-loaded",atualizarHorarios);
 atualizarHorarios();
-
 // Intercepta o formulário legado ANTES do handler local, evitando gravação no localStorage.
 form.addEventListener("submit",async function(e){
 e.preventDefault();
