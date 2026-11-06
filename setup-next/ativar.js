@@ -42,7 +42,7 @@ alterar("index.html",function(html){
 });
 alterar("painel-nuvem.html",function(html){
   if(!html.includes("formCloudServico"))throw Error("painel-nuvem.html não parece correto");
-  ["agenda-nuvem.js","solicitacoes-nuvem.js","galeria-nuvem.js","importar-fotos-antigas.js","configuracoes-nuvem.js"]
+  ["agenda-nuvem.js","solicitacoes-nuvem.js","bloqueios-nuvem.js","galeria-nuvem.js","importar-fotos-antigas.js","configuracoes-nuvem.js"]
     .forEach(nome=>{html=script(html,nome);});
   return html;
 });
