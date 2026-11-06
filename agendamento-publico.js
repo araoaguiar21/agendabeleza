@@ -1,87 +1,149 @@
-/* Agendamento público: solicita por WhatsApp; não salva dados pessoais no browser.
-   Consulta apenas horários ocupados. A Letícia confirma e registra no painel. */
-(function(){
+/* Solicitações de agendamento: dados guardados no Supabase, não no navegador.
+   O pedido só vira agendamento após aprovação da Letícia no painel.
+   Nunca exibir resposta como "confirmado" antes da aprovação. */
+(function () {
 "use strict";
-var form=document.getElementById("formAgendamento");
+var form=document.getElementById("formAgendamento"),db=window.studioDb;
 if(!form)return;
-var db=window.studioDb,date=document.getElementById("data"),
-hora=document.getElementById("horario"),botao=form.querySelector('button[type="submit"]');
-if(!date||!hora||!botao)return;
-botao.textContent="Solicitar horário pelo WhatsApp";
-var nota=document.createElement("p");
-nota.style.cssText="font-size:13px;margin:12px 0 16px;color:#79576a;line-height:1.5";
-nota.textContent="Esta é uma solicitação, não um agendamento confirmado. A Letícia confirma a disponibilidade pelo WhatsApp.";
-botao.parentNode.insertBefore(nota,botao);
-var aviso=document.createElement("p");aviso.setAttribute("role","status");
-aviso.style.cssText="font-size:13px;margin:8px 0;color:#93516c";
-nota.parentNode.insertBefore(aviso,nota);
-function slots(){
-var s=window.LETICIA_PUBLIC_CONFIG?.time_slots;
-if(!Array.isArray(s)||!s.length){
-s=typeof getHorarios==="function"?getHorarios():
-(typeof CONFIG!=="undefined"&&CONFIG.timeSlots?CONFIG.timeSlots:[]);
-}
-return [...new Set(s)].filter(x=>/^([01]\d|2[0-3]):[0-5]\d$/.test(x)).sort();
-}
-var seq=0;
-async function atualizar(){
-var data=date.value,id=++seq;
-hora.disabled=true;hora.replaceChildren();
-var placeholder=document.createElement("option");placeholder.value="";
-placeholder.textContent=data?"Buscando horários…":"Escolha uma data primeiro";
-hora.appendChild(placeholder);
-if(!data)return;
-var ocupados=new Set(),consultaOk=false;
-if(db){
-try{
-var result=await db.rpc("booked_slots",{p_day:data});
-if(result.error)throw result.error;
-if(id!==seq||date.value!==data)return;
-(result.data||[]).forEach(x=>ocupados.add(x.slot));
-consultaOk=true;
-}catch(e){if(id!==seq)return;console.warn("Horários não confirmados:",e);}
-}
-hora.replaceChildren();
-var inicial=document.createElement("option");inicial.value="";
-inicial.textContent="Escolha um horário de preferência";hora.appendChild(inicial);
-var livres=slots().filter(s=>!ocupados.has(s));
-livres.forEach(function(s){
-var opt=document.createElement("option");opt.value=s;opt.textContent=s;
-hora.appendChild(opt);
-});
-hora.disabled=!livres.length;
-aviso.textContent=!consultaOk
-?"Não foi possível verificar a agenda. O horário escolhido será apenas uma preferência."
-:livres.length?"Horários livres no momento da consulta, sujeitos à confirmação."
-:"Não encontramos horários livres nesta data.";
-}
-date.addEventListener("change",atualizar);
-date.addEventListener("input",atualizar);
-document.addEventListener("studio-settings-loaded",atualizar);
-atualizar();
-// Capture intercepta o handler LOCAL antigo, que dizia "confirmado" e usava localStorage.
-form.addEventListener("submit",function(e){
-e.preventDefault();e.stopImmediatePropagation();
-var nome=document.getElementById("nome").value.trim();
-var tel=document.getElementById("telefone").value.replace(/\D/g,"");
-var servico=document.getElementById("servico").value;
-var dia=date.value,horario=hora.value;
-if(nome.length<2||tel.length<10||tel.length>11||!servico||!dia||!horario){
-aviso.textContent="Confira nome, WhatsApp com DDD, serviço, data e horário.";return;
-}
-var cfg=window.LETICIA_PUBLIC_CONFIG||window.cfg||
+var data=document.getElementById("data");
+var hora=document.getElementById("horario");
+var botao=form.querySelector('button[type="submit"]');
+if(!data||!hora||!botao)return;
+botao.textContent="Enviar pedido de agendamento";
+
+var explicacao=document.createElement("p");
+explicacao.style.cssText="font-size:13px;margin:10px 0 14px;color:#79576a;line-height:1.5";
+explicacao.textContent="Seu pedido vai para o painel da Letícia. O horário só fica confirmado quando ela aprovar e entrar em contato.";
+botao.parentNode.insertBefore(explicacao,botao);
+
+var label=document.createElement("label");
+label.style.cssText="font-size:13px;display:flex;align-items:start;gap:9px;margin:9px 0 15px;line-height:1.5";
+var aceite=document.createElement("input");
+aceite.type="checkbox";aceite.required=true;aceite.style.cssText="width:auto;flex:none;margin-top:3px";
+label.appendChild(aceite);
+label.appendChild(document.createTextNode("Autorizo o envio do meu nome, WhatsApp e horário desejado ao Studio para contato sobre esta solicitação."));
+botao.parentNode.insertBefore(label,botao);
+
+var aviso=document.createElement("div");
+aviso.setAttribute("role","status");
+aviso.style.cssText="font-size:14px;line-height:1.5;margin:12px 0;white-space:pre-line";
+botao.parentNode.insertBefore(aviso,botao);
+
+var falar=document.createElement("a");
+falar.textContent="Prefiro solicitar pelo WhatsApp";
+falar.style.cssText="display:inline-block;margin:12px 0;font-size:13px;color:#86345a";
+falar.target="_blank";falar.rel="noopener noreferrer";
+botao.parentNode.insertBefore(falar,botao);
+function config(){
+return window.LETICIA_PUBLIC_CONFIG||window.cfg||
 (typeof CONFIG!=="undefined"?CONFIG:{});
-var w=String(cfg.whatsapp||"").replace(/\D/g,"");
-if(w.length===11)w="55"+w;
-if(!w){aviso.textContent="WhatsApp do Studio não configurado.";return;}
-var partes=dia.split("-");
-var dataBr=partes[2]+"/"+partes[1]+"/"+partes[0];
-var msg="Olá, Letícia! Gostaria de solicitar um horário no Studio.\n"+
-"Nome: "+nome+"\nWhatsApp: "+tel+"\nServiço: "+servico+
-"\nData desejada: "+dataBr+"\nHorário desejado: "+horario+
-"\nSe estiver disponível, pode confirmar meu agendamento?";
-var link="https://wa.me/"+w+"?text="+encodeURIComponent(msg);
-window.open(link,"_blank","noopener,noreferrer");
-aviso.textContent="Solicitação preparada no WhatsApp. Envie a mensagem e aguarde a confirmação da Letícia.";
+}
+function whatsappUrl(){
+var numero=String(config().whatsapp||"").replace(/\D/g,"");
+if(numero.length===11)numero="55"+numero;
+if(!numero)return "";
+var nome=document.getElementById("nome").value.trim();
+var telefone=document.getElementById("telefone").value.replace(/\D/g,"");
+var servico=document.getElementById("servico").value;
+var dia=data.value||"";
+var p=dia.split("-");
+var brasileira=p.length===3?p[2]+"/"+p[1]+"/"+p[0]:dia;
+var msg="Olá, Letícia! Quero solicitar um horário.\n"+
+"Nome: "+nome+"\nMeu WhatsApp: "+telefone+"\nServiço: "+servico+
+"\nData: "+brasileira+"\nHorário: "+(hora.value||"a combinar")+
+"\nPode confirmar a disponibilidade?";
+return "https://wa.me/"+numero+"?text="+encodeURIComponent(msg);
+}
+function atualizarWhatsApp(){
+var link=whatsappUrl();
+falar.hidden=!link;
+if(link)falar.href=link;
+}
+form.addEventListener("input",atualizarWhatsApp);
+form.addEventListener("change",atualizarWhatsApp);
+document.addEventListener("studio-settings-loaded",atualizarWhatsApp);
+atualizarWhatsApp();
+
+var requisicao=0;
+function slots(){
+var lista=config().time_slots||
+(typeof getHorarios==="function"?getHorarios():[]);
+if(!Array.isArray(lista))lista=[];
+return [...new Set(lista)].filter(x=>/^([01]\d|2[0-3]):[0-5]\d$/.test(x)).sort();
+}
+async function atualizarHorarios(){
+var dia=data.value, id=++requisicao;
+hora.disabled=true;hora.replaceChildren();
+var vazio=document.createElement("option");
+vazio.value="";vazio.textContent=dia?"Consultando horários…":"Escolha uma data primeiro";
+hora.appendChild(vazio);
+if(!dia)return;
+if(!db){
+aviso.textContent="Não foi possível conectar à agenda. Use o WhatsApp para solicitar.";
+return;
+}
+try{
+var resposta=await db.rpc("booked_slots",{p_day:dia});
+if(resposta.error)throw resposta.error;
+if(id!==requisicao||data.value!==dia)return;
+var ocupados=new Set((resposta.data||[]).map(x=>x.slot));
+var disponiveis=slots().filter(x=>!ocupados.has(x));
+hora.replaceChildren();
+var placeholder=document.createElement("option");placeholder.value="";
+placeholder.textContent=disponiveis.length?"Escolha um horário":"Sem horários livres";
+hora.appendChild(placeholder);
+disponiveis.forEach(function(s){
+var opt=document.createElement("option");opt.value=s;opt.textContent=s;hora.appendChild(opt);
+});
+hora.disabled=!disponiveis.length;
+aviso.textContent=disponiveis.length?"Horários sujeitos à confirmação pela Letícia.":"Sem horários para esta data.";
+}catch(erro){
+if(id!==requisicao)return;
+hora.replaceChildren();
+var opt=document.createElement("option");opt.value="";
+opt.textContent="Agenda indisponível";hora.appendChild(opt);
+aviso.textContent="Não foi possível verificar horários. Solicite pelo WhatsApp.";
+console.error("Consulta de disponibilidade:",erro);
+}
+}
+data.addEventListener("change",atualizarHorarios);
+data.addEventListener("input",atualizarHorarios);
+document.addEventListener("studio-settings-loaded",atualizarHorarios);
+atualizarHorarios();
+
+// Intercepta o formulário legado ANTES do handler local, evitando gravação no localStorage.
+form.addEventListener("submit",async function(e){
+e.preventDefault();
+e.stopImmediatePropagation();
+var nome=document.getElementById("nome").value.trim();
+var telefone=document.getElementById("telefone").value.replace(/\D/g,"");
+var servico=document.getElementById("servico").value;
+var dia=data.value, horario=hora.value;
+if(!aceite.checked){aviso.textContent="Marque a autorização de contato.";return;}
+if(nome.length<2||telefone.length<10||telefone.length>11||
+!servico||!dia||!horario||hora.disabled){
+aviso.textContent="Confira os campos, a data e o horário.";return;
+}
+if(!db){aviso.textContent="Sistema temporariamente indisponível. Solicite pelo WhatsApp.";return;}
+botao.disabled=true;botao.textContent="Enviando solicitação…";
+try{
+var resposta=await db.rpc("request_studio_appointment",{
+p_name:nome,p_phone:telefone,p_service:servico,p_day:dia,p_time:horario
+});
+if(resposta.error)throw resposta.error;
+var resultado=resposta.data;
+if(!resultado||resultado.ok!==true){
+aviso.textContent=(resultado&&resultado.message)||"Não foi possível registrar. Tente novamente.";
+return;
+}
+aviso.textContent="✅ Pedido enviado ao Studio! Ainda não está confirmado. Aguarde a resposta da Letícia.";
+form.reset();atualizarHorarios();atualizarWhatsApp();
+}catch(erro){
+console.error("Falha no pedido de agendamento:",erro);
+aviso.textContent="Não foi possível registrar o pedido na nuvem. " +
+"Você pode falar diretamente pelo WhatsApp.";
+}finally{
+botao.disabled=false;botao.textContent="Enviar pedido de agendamento";
+}
 },true);
 })();
