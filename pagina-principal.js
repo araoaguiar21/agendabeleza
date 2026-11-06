@@ -319,6 +319,20 @@ function serviceButtons(){
   observer.observe(grid,{childList:true});
   refresh();
 }
+function polirTitulos(){
+  [
+    ["#servicos .section-title","Serviços para suas unhas"],
+    ["#servicos .section-sub","Veja as opções disponíveis, valores e duração dos atendimentos."],
+    ["#portfolio .section-title","Nossos trabalhos"],
+    ["#portfolio .section-sub","Inspire-se com os trabalhos publicados no portfólio."],
+    ["#agendamento .section-title","Solicite seu horário"],
+    ["#agendamento .section-sub","Seu pedido vai para a Letícia e aguarda confirmação pelo WhatsApp."]
+  ].forEach(function(info){
+    var e=document.querySelector(info[0]);
+    if(e)e.textContent=info[1];
+  });
+}
+polirTitulos();
 menu();
 melhorarHero();
 sobre();
