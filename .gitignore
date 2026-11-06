@@ -1,0 +1,8 @@
+# Saída temporária e cópias de segurança de HTML
+dist/
+*.antes-da-nuvem.bak
+*.antes-da-pagina-principal.bak
+.env
+.env.*
+!.env.example
+node_modules/
