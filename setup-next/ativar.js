@@ -9,7 +9,7 @@ function alterar(nome,funcao){
   if(!fs.existsSync(arquivo)){console.error("Não encontrei",nome);process.exitCode=1;return;}
   const atual=fs.readFileSync(arquivo,"utf8"),novo=funcao(atual);
   if(novo===atual){console.log("Sem mudanças:",nome);return;}
-  const backup=arquivo+".antes-da-nuvem.bak";
+  const backup=arquivo+(nome==="index.html" ? ".antes-da-pagina-principal.bak" : ".antes-da-nuvem.bak");
   if(!fs.existsSync(backup))fs.copyFileSync(arquivo,backup);
   fs.writeFileSync(arquivo,novo,"utf8");
   console.log("Atualizado:",nome,"(backup preservado)");
