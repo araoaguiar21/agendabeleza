@@ -166,7 +166,7 @@ begin
         and a.appointment_date + a.appointment_time +
             a.duration_minutes * interval '1 minute' > p_day + h.t::time
     )
-  order by slot;
+  order by h.t;
 end;
 $body$;
 
