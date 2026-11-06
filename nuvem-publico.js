@@ -191,6 +191,7 @@
     // Buscas independentes, para cursos não bloquearem serviços e vice-versa.
     try {
       await carregarServicos();
+      document.dispatchEvent(new Event("studio-services-loaded"));
     } catch (erro) {
       avisoNoGrid(grid,"Não foi possível carregar os serviços. Tente novamente.");
       bloquearAgendamento("Indisponível no momento");
